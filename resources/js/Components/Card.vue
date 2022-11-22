@@ -28,7 +28,7 @@ export default {
         <div class="bg-gray-700 text-gray-300 rounded-lg shadow-lg w-full h-full">
             <div class="flex flex-col">
                 <div class="h-[142px] relative">
-                    <img :src="'/image/' + manga.id + '/' + images" alt="image" class="rounded-t-lg w-full h-full object-cover">
+                    <img :src="'https://i0.wp.com/mangadex.org/covers/' + manga.id + '/' + images" alt="image" class="rounded-t-lg w-full h-full object-cover">
                     <!-- Absolute love button -->
                     <div class="absolute top-0 right-0 m-2">
                         <button class="bg-gray-300 rounded-full p-1">

@@ -34,7 +34,8 @@ export default {
     },
     mounted() {
         this.images = this.manga.relationships.filter(relationship => relationship.type === "cover_art")[0].attributes.fileName;
-        this.image_url = this.url + "/image/" + this.manga.id + "/" + this.images;
+        // this.image_url = this.url + "/image/" + this.manga.id + "/" + this.images;
+        this.image_url = 'https://i0.wp.com/mangadex.org/covers/' + this.manga.id + '/' + this.images;
         this.author = this.manga.relationships.filter(relationship => relationship.type === "author")[0].attributes.name || "Unknown";
         this.release = this.manga.attributes.publicationDemographic || "Unknown";
         this.totalChapter = "Unknown";
