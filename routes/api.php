@@ -20,6 +20,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::get('/manga', [MangaController::class, 'getList']);
+Route::get('/search', [MangaController::class, 'search']);
 Route::get('/manga/{mangadex_id}', [MangaController::class, 'getDetail']);
 Route::get('/chapter', [MangaController::class, 'getChapter']);
 Route::get('/server/{chapter}', [MangaController::class, 'getImages']);

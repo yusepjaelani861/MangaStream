@@ -75,7 +75,7 @@ export default {
                     <div class="md:w-1/3 flex md:flex-col justify-between">
                         <div class="md:-mt-40 md:w-2/3 -mt-44 md:mx-16 mb-4 w-full">
                             <div class="flex md:flex-col">
-                                <img :src="image_url" alt="image" class="object-cover mb-4" />
+                                <img :src="image_url" alt="image" class="object-cover mb-4 w-1/3 md:w-full" />
                                 <div class="flex md:items-center items-end mb-4 px-2 justify-center w-full">
                                     <button id="bookmark"
                                         class="bg-indigo-500 hover:bg-indigo-700 rounded-md p-2 px-4 w-full">
@@ -107,7 +107,7 @@ export default {
                             {{ manga.attributes.title.en }}
                         </h1>
                         <div id="description" class="w-full mt-4 mb-4">
-                            <p class="text-gray-300">
+                            <p class="text-gray-300 break-words">
                                 {{ manga.attributes.description.en }}
                             </p>
                         </div>

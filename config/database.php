@@ -105,6 +105,12 @@ return [
             ],
         ],
 
+        'mongodb2' => [
+            'driver' => 'mongodb',
+            'dsn' => env('DB_DSN_MONGODB2', 'mongodb+srv://username:password@<atlas-cluster-uri>/myappdb?retryWrites=true&w=majority'),
+            'database' => env('DB_DATABASE_MONGODB2', 'myappdb'),
+        ],
+
     ],
 
     /*

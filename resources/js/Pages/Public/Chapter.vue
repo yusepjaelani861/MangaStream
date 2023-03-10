@@ -1,6 +1,6 @@
 <script setup>
 import Content from '@/Components/Content.vue';
-import { Head } from '@inertiajs/inertia-vue3';
+import { Head, Link } from '@inertiajs/inertia-vue3';
 import axios from 'axios';
 
 
@@ -8,6 +8,7 @@ defineProps({
     slug: String,
     chapter: String,
     content: Object,
+    manga: Object,
 })
 </script>
 
@@ -19,57 +20,72 @@ export default {
             var height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
             var scrolled = (winScroll / height) * 100;
             if (scrolled == 100) {
-                if (this.nextChapter != '') {
-                    window.location.href = '/manga/' + this.slug + '/' + this.nextChapter.id;
+                if (this.nextChapter != "") {
+                    window.location.href = "/manga/" + this.slug + "/" + this.nextChapter.id;
                 }
             }
             document.getElementById("progress").style.width = scrolled + "%";
-
             // var bottomOfWindow = document.documentElement.scrollTop + window.innerHeight == document.documentElement.offsetHeight;
             // if (bottomOfWindow) {
             //     if (this.nextChapter != '') {
             //         window.location.href = '/manga/' + this.slug + '/' + this.nextChapter.id;
             //     }
             // }
-        }
+        };
         return {
-            images: '',
-            nextChapter: '',
-        }
+            images: "",
+            nextChapter: "",
+            listChapter: []
+        };
     },
     mounted() {
         var avai = null;
+        this.ch = this.chapter;
         this.availableChapter = avai;
         axios.get(`/api/server/${this.chapter}`)
             .then(response => {
                 this.images = response.data;
-
                 setTimeout(() => {
                     axios.get(`/api/chapter?manga_id=` + this.slug)
                         .then(response => {
                             var data = response.data.data;
+                            this.listChapter = data;
                             var chapter = data.filter(chapter => chapter.id === this.chapter)[0];
                             var index = data.indexOf(chapter);
                             index += 1;
                             if (index > 0) {
                                 this.nextChapter = data[index];
                             }
-
-                            console.log(index)
+                            if (this.nextChapter == undefined) {
+                                this.nextChapter = "";
+                            }
                         })
                         .catch(error => {
                             console.log(error);
-                        })
-                }, 500)
+                        });
+                }, 500);
             })
             .catch(error => {
                 console.log(error);
                 this.images = null;
-            })
+            });
+        var disqus_config = function () {
+            this.page.url = window.location.href;
+            this.page.identifier = window.location.href;
+        };
+        (function () {
+            var d = document, s = d.createElement("script");
+            s.src = "https://mangastream-1.disqus.com/embed.js";
+            s.setAttribute("data-timestamp", +new Date());
+            (d.head || d.body).appendChild(s);
+        })();
     },
     methods: {
-        //
-    }
+        goToChapter() {
+            window.location.href = "/manga/" + this.slug + "/" + this.ch;
+        },
+    },
+    components: { Link }
 }
 </script>
 
@@ -82,12 +98,27 @@ export default {
     <Content>
         <!-- Judul Manga -->
         <div class="max-w-5xl mx-auto">
-            <div class="flex justify-center items-center p-4 border mx-4 mb-4 border-white">
-                <h1 class="text-2xl font-bold">{{ content.attributes.title }} - Chapter {{ content.attributes.chapter }}</h1>
+            <div class="flex flex-col justify-center items-center p-4 border mx-4 mb-4 rounded-md border-white">
+                <Link :href="'/manga/' + slug" class="text-white text-2xl font-bold">
+                <h1 class="text-2xl font-bold mb-2 text-center">{{ manga.attributes.title.en }} - Chapter
+                    {{ content.attributes.chapter }}</h1>
+                </Link>
+                <!-- List Chapter with select option -->
+                <div class="flex flex-row justify-center items-center" v-if="listChapter.length > 0">
+                    <select class="bg-gray-800 text-white border border-white rounded-md p-2 px-4 mx-2 w-[60vw]"
+                        v-model="ch">
+                        <option v-for="chapter in listChapter" :value="chapter.id">Chapter {{ chapter.attributes.chapter
+                        }}</option>
+                    </select>
+                    <button class="bg-gray-800 text-white border border-white rounded-md p-2"
+                        @click="goToChapter">Go</button>
+                </div>
             </div>
             <div v-if="images != ''">
                 <div v-for="(gambar, index) in images.chapter.dataSaver" :key="index">
-                    <img :src="'/data-saver/' + images.baseUrl.replace('https://', '') + '/data-saver/' + images.chapter.hash + '/' + gambar"
+                    <!-- <img :src="'/data-saver/' + images.baseUrl.replace('https://', '') + '/data-saver/' + images.chapter.hash + '/' + gambar"
+                        class="w-full h-auto" /> -->
+                    <img :src="'https://i0.wp.com/' + images.baseUrl.replace('https://', '') + '/data-saver/' + images.chapter.hash + '/' + gambar"
                         class="w-full h-auto" />
                 </div>
             </div>
@@ -114,15 +145,43 @@ export default {
                     <p class="">Sedang memuat gambar</p>
                 </div>
             </div>
+
+            <div class="flex flex-col mt-5 justify-center items-center p-4 border mx-4 mb-4 rounded-md border-white">
+                <Link :href="'/manga/' + slug" class="text-white text-2xl font-bold">
+                <h1 class="text-2xl font-bold mb-2 text-center">{{ manga.attributes.title.en }} - Chapter
+                    {{ content.attributes.chapter }}</h1>
+                </Link>
+                <!-- List Chapter with select option -->
+                <div class="flex flex-row justify-center items-center" v-if="listChapter.length > 0">
+                    <select class="bg-gray-800 text-white border border-white rounded-md p-2 px-4 mx-2 w-[60vw]"
+                        v-model="ch">
+                        <option v-for="chapter in listChapter" :value="chapter.id">Chapter {{ chapter.attributes.chapter
+                        }}</option>
+                    </select>
+                    <button class="bg-gray-800 text-white border border-white rounded-md p-2"
+                        @click="goToChapter">Go</button>
+                </div>
+            </div>
+
+            <div id="next-chapter" v-if="nextChapter != ''" class="mt-5 flex justify-center items-center">
+                <a :href="nextChapter.id != 'undefined' ? '/manga/' + slug + '/' + nextChapter.id : '#'"
+                    class="flex justify-center">
+                    <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                        Next Chapter
+                    </button>
+                </a>
+            </div>
+            <div v-else class="mt-5 flex justify-center items-center">
+                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    This is the last chapter
+                </button>
+            </div>
+
+            <div class="mt-5 justify-center items-center w-full px-5">
+                <div id="disqus_thread" class="w-full"></div>
+            </div>
         </div>
         <div v-if="images != ''" class="fixed bottom-0 left-0 h-3 bg-blue-600 z-50" style="" id="progress">
-        </div>
-        <div id="next-chapter" v-if="nextChapter != ''" class="mt-5 flex justify-center items-center">
-            <a :href="'/manga/' + slug + '/' + nextChapter.id" class="flex justify-center">
-                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                    Next Chapter
-                </button>
-            </a>
         </div>
     </Content>
 </template>

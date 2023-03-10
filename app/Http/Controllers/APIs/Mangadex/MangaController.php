@@ -91,7 +91,6 @@ class MangaController extends Controller
         $covers = Covers::where('mangadex_chapter_id', $chapter)->first();
         if ($covers) {
             return response()->json($covers->data);
-            // return $this->sendResponse($covers->data, 'Covers retrieved successfully.');
         }
         $url = env('VITE_MANGADEX_API_URL') . '/at-home/server/' . $chapter;
         $client = new \GuzzleHttp\Client();
@@ -121,14 +120,54 @@ class MangaController extends Controller
 
         $json = json_decode($response->getBody());
 
-        $manga = new Manga();
-        $manga->mangadex_id = $mangadex_id;
-        $manga->data = $json->data;
-        $manga->save();
+        Manga::updateOrCreate(
+            ['mangadex_id' => $mangadex_id],
+            ['data' => $json->data]
+        );
 
         return $this->sendResponse($json->data, 'Manga found', []);
+    }
+
+    public function search(Request $request)
+    {
+        $url = env('VITE_MANGADEX_API_URL') . '/manga';
+        $query = [
+            'title' => $request->title,
+            'contentRating' => $request->contentRating,
+            'publicationDemographic' => $request->publicationDemographic,
+            'status' => $request->status,
+            'originalLanguage' => $request->originalLanguage,
+            'createdAtSince' => $request->createdAtSince,
+            'updatedAtSince' => $request->updatedAtSince,
+            'order[createdAt]' => $request->orderCreatedAt,
+            'order[updatedAt]' => $request->orderUpdatedAt,
+            'order[popularity]' => $request->orderPopularity,
+            'order[trending]' => $request->orderTrending,
+            'ids[]' => $request->ids,
+            'authors[]' => $request->authors,
+            'artists[]' => $request->artists,
+            'year[]' => $request->year,
+            'includedTags[]' => $request->includedTags,
+            'excludedTags[]' => $request->excludedTags,
+            'includedTagsMode' => $request->includedTagsMode,
+            'excludedTagsMode' => $request->excludedTagsMode,
+            'originalLanguage[]' => $request->originalLanguage,
+            'publicationDemographic[]' => $request->publicationDemographic,
+            'contentRating[]' => $request->contentRating,
+            'status[]' => $request->status,
+            'version' => $request->version,
+            'hentai' => $request->hentai,
+        ];
+
+        // convert to url query string
+        $query = http_build_query($query);
+        $url = $url . '?' . $query . '&includes[]=cover_art&includes[]=chapter';
+
+        // return $url;
+        $client = new \GuzzleHttp\Client();
+        $response = $client->request('GET', $url);
 
         // return $response->getBody();
-        // return response()->json(json_decode($response->getBody()));
+        return response()->json(json_decode($response->getBody()));
     }
 }

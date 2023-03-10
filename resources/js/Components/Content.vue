@@ -20,12 +20,15 @@ export default {
             this.sidebarOpen = !this.sidebarOpen;
         },
     },
+    mounted() {
+        //
+    },
     components: { Link }
 }
 </script>
 
 <template>
-    <div id="navbar" class="fixed w-full bg-gray-800 p-4 z-30 mx-auto">
+    <div id="navbar" class="fixed w-full bg-gray-800 p-4 z-30 mx-auto transition-all duration-300">
 
         <div id="sidebar-button" class="absolute top-0 left-0 p-4">
             <button class="bg-gray-800 text-white p-1 rounded-full block" @click="toggleSidebar">

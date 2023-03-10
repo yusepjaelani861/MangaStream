@@ -3,14 +3,23 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Jenssegers\Mongodb\Eloquent\Model;
+use Illuminate\Database\Eloquent\Model;
+// use Jenssegers\Mongodb\Eloquent\Model;
 
 class Covers extends Model
 {
     use HasFactory;
 
-    protected $connection = 'mongodb';
+    // protected $connection = 'mongodb2';
+    // protected $collection = 'covers';
+    // protected $guarded = [];
 
-    protected $collection = 'covers';
-    protected $guarded = [];
+    protected $fillable = [
+        'mangadex_chapter_id',
+        'data',
+    ];
+
+    protected $casts = [
+        'data' => 'array',
+    ];
 }

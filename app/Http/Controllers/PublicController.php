@@ -20,15 +20,6 @@ class PublicController extends Controller
                 'url' => env('APP_URL')
             ]);
         }
-        $manga = Manga::where('mangadex_id', $slug)->first();
-        if ($manga) {
-            Cache::put('manga_' . $slug, $manga->data, 60 * 24 * 7);
-            return Inertia::render('Public/Manga', [
-                'slug' => $slug,
-                'manga' => $manga->data,
-                'url' => env('APP_URL'),
-            ]);
-        }
 
         $url = env('VITE_MANGADEX_API_URL') . '/manga/' . $slug;
         $url = $url . '?includes[]=cover_art&includes[]=author&includes[]=artist&includes[]=scanlation_group&includes[]=tag';
@@ -37,10 +28,10 @@ class PublicController extends Controller
 
         $json = json_decode($response->getBody());
 
-        $manga = new Manga();
-        $manga->mangadex_id = $slug;
-        $manga->data = $json->data;
-        $manga->save();
+        Manga::updateOrCreate(
+            ['mangadex_id' => $slug],
+            ['data' => $json->data]
+        );
 
         Cache::put('manga_' . $slug, $json->data, 60 * 24 * 7);
 
@@ -59,7 +50,8 @@ class PublicController extends Controller
             return Inertia::render('Public/Chapter', [
                 'slug' => $slug,
                 'chapter' => $chapter,
-                'content' => $cache,
+                'content' => $cache['content'],
+                'manga' => $cache['manga'],
                 'url' => env('APP_URL')
             ]);
         }
@@ -77,12 +69,33 @@ class PublicController extends Controller
             ['data' => $json->data]
         );
 
-        Cache::put('chapter_' . $slug . '_' . $chapter, $json->data, 60 * 24 * 7);
+        $manga = Manga::where('mangadex_id', $slug)->first();
+        if (!$manga) {
+            $url = env('VITE_MANGADEX_API_URL') . '/manga/' . $slug;
+            $url = $url . '?includes[]=cover_art&includes[]=author&includes[]=artist&includes[]=scanlation_group&includes[]=tag';
+            $client = new \GuzzleHttp\Client();
+            $response = $client->request('GET', $url);
+
+            $json = json_decode($response->getBody());
+
+            Manga::updateOrCreate(
+                ['mangadex_id' => $slug],
+                ['data' => $json->data]
+            );
+
+            $manga = Manga::where('mangadex_id', $slug)->first();
+        }
+
+        Cache::put('chapter_' . $slug . '_' . $chapter, [
+            'content' => $json->data,
+            'manga' => $manga->data
+        ], 60 * 24 * 7);
 
         return Inertia::render('Public/Chapter', [
             'slug' => $slug,
             'chapter' => $chapter,
             'content' => $json->data,
+            'manga' => $manga->data,
         ]);
     }
 }

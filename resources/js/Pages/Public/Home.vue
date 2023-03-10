@@ -18,13 +18,10 @@ export default {
         }
     },
     mounted() {
-        console.log(this.page)
-
         window.onscroll = () => {
             var bottomOfWindow = document.documentElement.scrollTop + window.innerHeight === document.documentElement.offsetHeight;
             if (bottomOfWindow) {
                 this.infinityloading = true;
-                console.log('bottom')
                 // this.manga = [];
                 let params = {
                     'limit': 16,
@@ -58,9 +55,6 @@ export default {
             .then(response => {
                 this.manga = response.data.data;
                 this.offset += response.data.limit;
-                console.log(this.offset)
-                // console.log(response.data.data)
-                // console.log(this.data.data)
             })
             .catch(error => {
                 console.log(error);
@@ -74,7 +68,6 @@ export default {
         },
         nextPage() {
             this.page = this.page + 1;
-            console.log(this.page)
             window.history.pushState({}, '', `=${this.page}`);
             // this.fetchData();
         },
@@ -175,7 +168,7 @@ export default {
         <div id="content" class="md:container md:mx-auto md:px-4">
             <div class="flex flex-row justify-between items-center mt-10 px-5">
                 <h1 class="md:text-3xl text-xl font-bold text-white">Latest Anime</h1>
-                <Link href="/anime" class="text-white">See All</Link>
+                <!-- <Link href="/anime" class="text-white">See All</Link> -->
             </div>
 
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4" v-if="manga.length > 0">

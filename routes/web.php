@@ -52,8 +52,10 @@ Route::get('/manga/{slug}/{chapter}', [PublicController::class, 'chapter'])->nam
 Route::get('/image/{mangadex_id}/{filename}', [ImagesController::class, 'get']);
 Route::get('/data-saver/{base_url}/data-saver/{hash}/{filename}', [ImagesController::class, 'getChapterImages']);
 
-Route::get('/search', function () {
-    return Inertia::render('Public/Search');
+Route::get('/search', function (Request $request) {
+    return Inertia::render('Public/Search', [
+        'title' => $request->title,
+    ]);
 })->name('search');
 
 Route::get('/dashboard', function () {
